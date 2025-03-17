@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketplace</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h2>Simple Marketplace</h2>
+    <h3>Add a New Listing</h3>
+    <form id="listingForm">
+        <input type="text" id="title" placeholder="Title" required>
+        <input type="number" id="price" placeholder="Price" required>
+        <textarea id="description" placeholder="Description" required></textarea>
+        <input type="text" id="contact" placeholder="Contact No." required>
+        <input type="file" id="image" accept="image/*" required>
+        <button type="submit">Post Listing</button>
+    </form>
+        
+    <h3>Listings</h3>
+    <div id="listings">Loading listings...</div>
+
+    <script src="script.js"></script>
+</body>
+</html>
