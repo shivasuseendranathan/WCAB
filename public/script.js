@@ -1,5 +1,6 @@
 // 🚀 Backend API URL
-const API_URL = "http://localhost:8080";
+const API_URL = "https://wcab.onrender.com";
+
 
 // 🟢 Function to Fetch Listings
 async function fetchListings() {
