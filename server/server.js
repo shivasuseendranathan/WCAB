@@ -14,7 +14,7 @@ const serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS); // ✅ Uses
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    storageBucket: "your-bucket-name.appspot.com",
+    storageBucket: "gs://wcab-55dcc.firebasestorage.app",
 });
 
 const db = admin.firestore();
