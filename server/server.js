@@ -74,6 +74,27 @@ app.get('/listings', async (req, res) => {
     }
 });
 
+// 🟢 Route: Delete Listing
+app.delete('/delete/:id', async (req, res) => {
+    try {
+        const { password } = req.body;
+        const listingId = req.params.id;
+
+        // ✅ Correct password
+        if (password !== "42069") {
+            return res.status(403).json({ error: "Incorrect password!" });
+        }
+
+        // ✅ Delete from Firestore
+        await db.collection("listings").doc(listingId).delete();
+        res.status(200).json({ success: true, message: "Listing deleted!" });
+
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+
 // Start Server
 app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);

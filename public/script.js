@@ -4,30 +4,71 @@ const API_URL = "https://wcab.onrender.com";
 
 // 🟢 Function to Fetch Listings
 async function fetchListings() {
+    const response = await fetch("https://wcab.onrender.com/listings");
+    const listings = await response.json();
+    const listingsContainer = document.getElementById("listings");
+
+    listingsContainer.innerHTML = ""; // Clear previous listings
+
+    listings.forEach(listing => {
+        const div = document.createElement("div");
+        div.innerHTML = `
+            <h3>${listing.title}</h3>
+            <p>Price: ${listing.price}</p>
+            <p>${listing.description}</p>
+            <p>Contact: ${listing.contact}</p>
+            <button class="delete-btn" data-id="${listing.id}">Delete</button>
+        `;
+        listingsContainer.appendChild(div);
+    });
+
+    // Attach event listener to delete buttons
+    document.querySelectorAll(".delete-btn").forEach(button => {
+        button.addEventListener("click", (event) => {
+            const listingId = event.target.dataset.id;
+            showPasswordPrompt(listingId);
+        });
+    });
+}
+
+function showPasswordPrompt(listingId) {
+    document.getElementById("password-modal").style.display = "block";
+
+    // Confirm Delete Button Click
+    document.getElementById("confirm-delete").onclick = async () => {
+        const password = document.getElementById("delete-password").value;
+        if (password === "42069") {
+            deleteListing(listingId, password);
+        } else {
+            alert("Incorrect password! Try again.");
+        }
+    };
+
+    // Cancel Delete Button Click
+    document.getElementById("cancel-delete").onclick = () => {
+        document.getElementById("password-modal").style.display = "none";
+    };
+}
+
+async function deleteListing(listingId, password) {
     try {
-        let response = await fetch(`${API_URL}/listings`);  // GET data from backend
-        let listings = await response.json();  // Convert to JSON
-
-        let listingContainer = document.getElementById("listings");  
-        listingContainer.innerHTML = "";  // Clear loading text
-
-        // 🟢 Loop through listings and display them
-        listings.forEach(listing => {
-            let div = document.createElement("div");
-            div.className = "listing";
-            div.innerHTML = `
-                <img src="${listing.imageUrl}" alt="Listing Image">
-                <h4>${listing.title}</h4>
-                <p><strong>Price:</strong> ₹${listing.price}</p>
-                <p>${listing.description}</p>
-                <p><strong>Contact:</strong> ${listing.contact}</p>
-            `;
-            listingContainer.appendChild(div);
+        const response = await fetch(`https://wcab.onrender.com/delete/${listingId}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ password }),
         });
 
+        const result = await response.json();
+
+        if (response.ok) {
+            alert("Listing deleted successfully!");
+            document.getElementById("password-modal").style.display = "none";
+            fetchListings(); // Refresh listings
+        } else {
+            alert("Error: " + result.error);
+        }
     } catch (error) {
-        console.error("❌ Error fetching listings:", error);
-        document.getElementById("listings").innerHTML = "Error loading listings.";
+        alert("Request failed: " + error.message);
     }
 }
 
