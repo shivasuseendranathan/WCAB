@@ -3,26 +3,56 @@ const API_URL = "https://wcab.onrender.com";
 
 
 // 🟢 Function to Fetch Listings
-async function fetchListings() {
-    const response = await fetch("https://wcab.onrender.com/listings");
-    const listings = await response.json();
-    const listingsContainer = document.getElementById("listings");
+let currentPage = 1;
 
-    listingsContainer.innerHTML = ""; // Clear previous listings
+async function fetchListings(page = 1) {
+    try {
+        const response = await fetch(`https://wcab.onrender.com/listings?page=${page}`);
+        const data = await response.json();
+        const listings = data.listings;
+        const listingsContainer = document.getElementById("listings");
 
-    listings.forEach(listing => {
-        const imageSrc = listing.imageUrl ? listing.imageUrl : "default-placeholder.jpg"; // Fallback if missing
-        const div = document.createElement("div");
-        div.innerHTML = `
-            <h3>${listing.title}</h3>
-            <p>Price: ${listing.price}</p>
-            <p>${listing.description}</p>
-            <p>Contact: ${listing.contact}</p>
-            <img src="${imageSrc}" alt="Listing Image" onerror="this.src='default-placeholder.jpg'">
-            <button class="delete-btn" data-id="${listing.id}">Delete</button>
-        `;
-        listingsContainer.appendChild(div);
-    });
+        listingsContainer.innerHTML = ""; // Clear previous listings
+
+        listings.forEach((listing) => {
+            const div = document.createElement("div");
+            div.classList.add("listing-card");
+            div.innerHTML = `
+                <h3>${listing.title}</h3>
+                <p>Price: ${listing.price}</p>
+                <p>${listing.description}</p>
+                <p>Contact: ${listing.contact}</p>
+                <img src="${listing.imageUrl || 'default-placeholder.jpg'}" alt="Listing Image">
+                <button class="delete-btn" data-id="${listing.id}">Delete</button>
+            `;
+            listingsContainer.appendChild(div);
+        });
+
+        // Update page number display
+        document.getElementById("page-number").innerText = `Page ${page}`;
+        currentPage = page;
+
+        // Enable or disable pagination buttons
+        document.getElementById("prev-page").disabled = page === 1;
+    } catch (error) {
+        console.error("Error loading listings:", error);
+    }
+}
+
+// Handle Next and Previous Buttons
+document.getElementById("next-page").addEventListener("click", () => {
+    fetchListings(currentPage + 1);
+});
+
+document.getElementById("prev-page").addEventListener("click", () => {
+    if (currentPage > 1) {
+        fetchListings(currentPage - 1);
+    }
+});
+
+// Load first page on startup
+fetchListings();
+
 
     // Attach event listener to delete buttons
     document.querySelectorAll(".delete-btn").forEach(button => {
@@ -31,7 +61,7 @@ async function fetchListings() {
             showPasswordPrompt(listingId);
         });
     });
-}
+
 
 function showPasswordPrompt(listingId) {
     document.getElementById("password-modal").style.display = "block";

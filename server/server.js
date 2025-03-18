@@ -65,10 +65,18 @@ app.post('/upload', upload.single('image'), async (req, res) => {
 // 🟢 Route: Get All Listings
 app.get('/listings', async (req, res) => {
     try {
-        const snapshot = await db.collection('listings').orderBy('timestamp', 'desc').get();
-        let listings = [];
-        snapshot.forEach(doc => listings.push({ id: doc.id, ...doc.data() }));
-        res.status(200).json(listings);
+        let page = parseInt(req.query.page) || 1;  // Default to page 1
+        let limit = 100;  // Show 100 listings per page
+        let startAt = (page - 1) * limit;
+
+        const snapshot = await db.collection("listings")
+            .orderBy("timestamp", "desc")
+            .offset(startAt)
+            .limit(limit)
+            .get();
+
+        let listings = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        res.status(200).json({ listings, page, limit });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

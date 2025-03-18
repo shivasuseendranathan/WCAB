@@ -17,10 +17,17 @@
         <input type="file" id="image" accept="image/*" required>
         <button type="submit">Post Listing</button>
     </form>
+    <div id="listings">Loading listings...</div>
     <div id="listing-container">
         <h2>Listings</h2>
-        <div id="listings"></div>
+        <div id="listings" class="grid-container"></div>
     </div>
+    <!-- Pagination Controls -->
+    <div id="pagination">
+        <button id="prev-page" disabled>Previous</button>
+        <span id="page-number">Page 1</span>
+        <button id="next-page">Next</button>
+    </div>    
     
     <!-- Password Prompt (Hidden Initially) -->
     <div id="password-modal" style="display: none;">
@@ -29,9 +36,6 @@
         <button id="confirm-delete">Confirm Delete</button>
         <button id="cancel-delete">Cancel</button>
     </div>
-    
-    <h3>Live Listings</h3>
-    <div id="listings">Loading listings...</div>
 
     <script src="script.js"></script>
 </body>
