@@ -1,7 +1,6 @@
 require('dotenv').config(); // Load environment variables
 const express = require('express');
 const cors = require('cors');
-const admin = require('firebase-admin');
 const multer = require('multer');
 const fs = require('fs');
 
@@ -9,14 +8,18 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 
 // Load Firebase credentials from Render environment variable
-const serviceAccount = require("./serviceAccountKey.json");
+const admin = require("firebase-admin");
+
+const serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS); // ✅ Uses Render environment variable
 
 admin.initializeApp({
- credential: admin.credential.cert(serviceAccount),
- storageBucket: "wcab-55dcc.firebasestorage.app"
+    credential: admin.credential.cert(serviceAccount),
+    storageBucket: "your-bucket-name.appspot.com",
 });
+
 const db = admin.firestore();
-const bucket = admin.storage().bucket(); // ✅ This ensures the bucket is defined
+const bucket = admin.storage().bucket();
+
 
 
 
