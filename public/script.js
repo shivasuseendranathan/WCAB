@@ -16,7 +16,7 @@ async function fetchListings(page = 1) {
 
         listings.forEach((listing) => {
             const div = document.createElement("div");
-            div.classList.add("listing-card");
+            div.classList.add("listing-card"); // ✅ Ensures each listing uses the correct styling
             div.innerHTML = `
                 <h3>${listing.title}</h3>
                 <p>Price: ${listing.price}</p>
@@ -38,6 +38,7 @@ async function fetchListings(page = 1) {
         console.error("Error loading listings:", error);
     }
 }
+
 
 // Handle Next and Previous Buttons
 document.getElementById("next-page").addEventListener("click", () => {

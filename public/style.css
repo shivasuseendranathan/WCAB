@@ -1,13 +1,58 @@
+/* 📌 Ensure Listings Use a Grid Layout */
 #listings {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* ✅ 4 Listings Per Row */
     gap: 15px;
+    padding: 20px;
+    justify-content: center;
 }
 
-h4 {
-    margin: 10px 0;
+/* 📌 Styling for Each Listing */
+.listing-card {
+    border: 1px solid #ccc;
+    padding: 15px;
+    text-align: center;
+    background-color: white;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    transition: transform 0.2s ease-in-out;
 }
+
+.listing-card:hover {
+    transform: scale(1.05);
+}
+
+/* 📌 Ensure Images Fit Well */
+.listing-card img {
+    max-width: 100%;
+    height: 200px; /* Fixed height for uniformity */
+    object-fit: cover; /* Ensures images maintain aspect ratio */
+    border-radius: 5px;
+}
+
+/* 📌 Pagination Controls */
+#pagination {
+    text-align: center;
+    margin-top: 20px;
+}
+
+#pagination button {
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    background-color: #007BFF;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#pagination button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* 📌 Form Styling */
 form {
     display: flex;
     flex-direction: column;
@@ -34,52 +79,7 @@ button {
 button:hover {
     background: darkgreen;
 }
+
 h2, h3 {
     text-align: center;
-}
-/* 📌 Grid Layout for Listings */
-.grid-container {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr); /* ✅ 4 Listings Per Row */
-    gap: 10px;
-    padding: 10px;
-}
-
-/* 📌 Styling for Each Listing */
-.listing-card {
-    border: 1px solid #ccc;
-    padding: 15px;
-    text-align: center;
-    background-color: white;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-}
-
-/* 📌 Ensure Images Fit Well */
-.listing-card img {
-    max-width: 40%;
-    height: auto;
-    border-radius: 5px;
-}
-
-/* 📌 Pagination Buttons */
-#pagination {
-    text-align: center;
-    margin-top: 20px;
-}
-
-#pagination button {
-    padding: 10px 20px;
-    margin: 5px;
-    border: none;
-    background-color: #007BFF;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-#pagination button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
 }
