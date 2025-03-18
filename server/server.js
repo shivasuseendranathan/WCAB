@@ -14,14 +14,11 @@ const serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS); // ✅ Uses
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    storageBucket: "gs://wcab-55dcc.firebasestorage.app",
+    storageBucket: "wcab-55dcc.firebasestorage.app",
 });
 
 const db = admin.firestore();
 const bucket = admin.storage().bucket();
-
-
-
 
 // Middleware
 app.use(cors());
