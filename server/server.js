@@ -10,7 +10,12 @@ const PORT = process.env.PORT || 8080;
 // Load Firebase credentials from Render environment variable
 const admin = require("firebase-admin");
 
-const serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS); // ✅ Uses Render environment variable
+let serviceAccount;
+if (process.env.FIREBASE_CREDENTIALS) {
+    serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS);
+} else {
+    serviceAccount = require("./serviceAccountKey.json"); // ✅ Local use
+}
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
@@ -19,6 +24,7 @@ admin.initializeApp({
 
 const db = admin.firestore();
 const bucket = admin.storage().bucket();
+
 
 // Middleware
 app.use(cors());
