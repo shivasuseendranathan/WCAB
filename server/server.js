@@ -1,8 +1,6 @@
 require('dotenv').config(); // Load environment variables
 const express = require('express');
 const cors = require('cors');
-const multer = require('multer');
-const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -30,8 +28,12 @@ const bucket = admin.storage().bucket();
 app.use(cors());
 app.use(express.json());
 
-// Multer for Image Uploads
-const upload = multer({ dest: 'uploads/' });
+const multer = require("multer");
+const fs = require("fs");
+
+// Configure Multer (for handling file uploads)
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 app.post('/upload', upload.single('image'), async (req, res) => {
     try {
@@ -44,27 +46,29 @@ app.post('/upload', upload.single('image'), async (req, res) => {
 
         // Upload image to Firebase Storage
         const imagePath = `images/${Date.now()}_${imageFile.originalname}`;
-        await bucket.upload(imageFile.path, { destination: imagePath });
+        const file = bucket.file(imagePath);
+
+        await file.save(imageFile.buffer, {
+            metadata: { contentType: imageFile.mimetype },
+        });
 
         // Generate a public image URL
         const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(imagePath)}?alt=media`;
 
-        // Remove local file after upload
-        fs.unlinkSync(imageFile.path);
-
         // Save listing to Firestore
-        await db.collection('listings').add({
+        await db.collection("listings").add({
             title,
             price,
             description,
             contact,
-            imageUrl,
+            imageUrl, // ✅ Correctly storing image URL
             timestamp: admin.firestore.FieldValue.serverTimestamp(),
         });
 
-        res.status(200).json({ success: true, message: "Listing added successfully!" });
+        res.status(200).json({ success: true, message: "Listing added successfully!", imageUrl });
 
     } catch (error) {
+        console.error("Upload error:", error);
         res.status(500).json({ error: error.message });
     }
 });
