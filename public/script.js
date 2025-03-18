@@ -38,6 +38,44 @@ async function fetchListings(page = 1) {
         console.error("Error loading listings:", error);
     }
 }
+// Function to Post Listings
+async function postListing() {
+    const title = document.getElementById("title").value;
+    const price = document.getElementById("price").value;
+    const description = document.getElementById("description").value;
+    const contact = document.getElementById("contact").value;
+    const imageInput = document.getElementById("image"); // Image file input
+    const imageFile = imageInput.files[0];
+
+    if (!imageFile) {
+        alert("Please select an image.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("price", price);
+    formData.append("description", description);
+    formData.append("contact", contact);
+    formData.append("image", imageFile); // ✅ Correctly appending image file
+
+    try {
+        const response = await fetch("https://wcab.onrender.com/upload", {
+            method: "POST",
+            body: formData, // ✅ Sending FormData (not JSON)
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            alert("Listing added successfully!");
+            fetchListings(); // Refresh listings
+        } else {
+            alert("Error: " + result.error);
+        }
+    } catch (error) {
+        alert("Request failed: " + error.message);
+    }
+}
 
 
 // Handle Next and Previous Buttons

@@ -17,7 +17,7 @@ if (process.env.FIREBASE_CREDENTIALS) {
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    storageBucket: "wcab-55dcc.firebasestorage.app/images",
+    storageBucket: "wcab-55dcc.firebasestorage.app",
 });
 
 const db = admin.firestore();

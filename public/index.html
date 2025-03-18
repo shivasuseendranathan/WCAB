@@ -9,14 +9,15 @@
 <body>
     <h2>WCAB Hub</h2>
     <h3>Add a New Listing</h3>
-    <form id="listingForm">
+    <form id="listing-form">
         <input type="text" id="title" placeholder="Title" required>
-        <input type="number" id="price" placeholder="Price" required>
+        <input type="text" id="price" placeholder="Price" required>
         <textarea id="description" placeholder="Description" required></textarea>
-        <input type="text" id="contact" placeholder="Contact No." required>
+        <input type="text" id="contact" placeholder="Contact" required>
         <input type="file" id="image" accept="image/*" required>
-        <button type="submit">Post Listing</button>
+        <button type="button" onclick="postListing()">Post Listing</button>
     </form>
+    
     <div id="listings">Loading listings...</div>
     <div id="listing-container">
         <h2>Listings</h2>
