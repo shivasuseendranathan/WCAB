@@ -11,12 +11,14 @@ async function fetchListings() {
     listingsContainer.innerHTML = ""; // Clear previous listings
 
     listings.forEach(listing => {
+        const imageSrc = listing.imageUrl ? listing.imageUrl : "default-placeholder.jpg"; // Fallback if missing
         const div = document.createElement("div");
         div.innerHTML = `
             <h3>${listing.title}</h3>
             <p>Price: ${listing.price}</p>
             <p>${listing.description}</p>
             <p>Contact: ${listing.contact}</p>
+            <img src="${imageSrc}" alt="Listing Image" onerror="this.src='default-placeholder.jpg'">
             <button class="delete-btn" data-id="${listing.id}">Delete</button>
         `;
         listingsContainer.appendChild(div);
