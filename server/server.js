@@ -14,12 +14,12 @@ let serviceAccount;
 if (process.env.FIREBASE_CREDENTIALS) {
     serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS);
 } else {
-    serviceAccount = require("./serviceAccountKey.json"); // ✅ Local use
+    throw new Error("Missing Firebase credentials. Set FIREBASE_CREDENTIALS in environment variables.");
 }
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    storageBucket: "wcab-55dcc.firebasestorage.app",
+    storageBucket: "your-bucket-name.appspot.com",
 });
 
 const db = admin.firestore();
