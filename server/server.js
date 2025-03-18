@@ -8,14 +8,14 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Initialize Firebase
-const serviceAccount = require("./serviceAccountKey.json");
+// Load Firebase credentials from Render environment variable
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+
 admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+ credential: admin.credential.cert(serviceAccount),
+ storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
 });
-const db = admin.firestore();
-const bucket = admin.storage().bucket();
+
 
 // Middleware
 app.use(cors());
