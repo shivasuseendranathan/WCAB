@@ -9,13 +9,15 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 
 // Load Firebase credentials from Render environment variable
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+const serviceAccount = require("./serviceAccountKey.json");
 
 admin.initializeApp({
  credential: admin.credential.cert(serviceAccount),
- storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+ storageBucket: "wcab-55dcc.firebasestorage.app"
 });
 const db = admin.firestore();
+const bucket = admin.storage().bucket(); // ✅ This ensures the bucket is defined
+
 
 
 // Middleware
