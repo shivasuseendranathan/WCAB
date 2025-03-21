@@ -12,7 +12,7 @@ async function fetchListings() {
     const response = await fetch(`${API_URL}/listings`);
     const data = await response.json();
     console.log("Fetched listings:", data);
-    listingsData = data.reverse(); // Latest first
+    listingsData = data.listings.reverse(); // Latest first
     if (listingsData.length === 0) {
       emptyMessage.style.display = 'block';
     } else {
