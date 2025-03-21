@@ -1,4 +1,4 @@
-const API_URL = 'https://wcab.onrender.com'; // Update this if needed
+const API_URL = 'https://wcab.onrender.com';
 let listingsData = [];
 let currentPage = 1;
 const listingsPerPage = 100;
@@ -11,13 +11,14 @@ async function fetchListings() {
   try {
     const response = await fetch(`${API_URL}/listings`);
     const data = await response.json();
-    console.log("Fetched listings:", data);
-    listingsData = data.listings.reverse(); // Latest first
+    listingsData = data.listings.reverse(); // Fix for backend structure
+
     if (listingsData.length === 0) {
       emptyMessage.style.display = 'block';
     } else {
       emptyMessage.style.display = 'none';
     }
+
     showPage(currentPage);
   } catch (error) {
     listingsContainer.innerHTML = '<p style="text-align:center; color:red;">Error loading listings.</p>';
@@ -105,6 +106,34 @@ async function postListing() {
   }
 }
 
+async function deleteListing(id) {
+  const password = prompt("Enter password to delete this listing:");
+  if (password !== "42069") {
+    alert("Incorrect password.");
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/delete`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ id, password })
+    });
+
+    const result = await response.json();
+    if (response.ok) {
+      showToast("✅ Listing deleted");
+      fetchListings();
+    } else {
+      alert("Error: " + result.error);
+    }
+  } catch (error) {
+    alert("Deletion failed: " + error.message);
+  }
+}
+
 function showToast(message) {
   const toast = document.createElement("div");
   toast.textContent = message;
@@ -123,5 +152,4 @@ function showToast(message) {
   setTimeout(() => toast.remove(), 2500);
 }
 
-// Call fetchListings when the page loads
 window.onload = fetchListings;
