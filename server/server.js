@@ -1,8 +1,9 @@
 require('dotenv').config(); // Load environment variables
 const express = require('express');
 const cors = require('cors');
-
 const app = express();
+
+app.use(cors());
 const PORT = process.env.PORT || 8080;
 
 // Load Firebase credentials from Render environment variable
