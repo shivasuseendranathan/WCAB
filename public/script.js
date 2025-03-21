@@ -1,4 +1,4 @@
-const API_URL = "https://wcab.onrender.com/listings"; // Update this if needed
+const API_URL = 'https://wcab.onrender.com'; // Update this if needed
 let listingsData = [];
 let currentPage = 1;
 const listingsPerPage = 100;
@@ -9,8 +9,9 @@ async function fetchListings() {
   listingsContainer.innerHTML = 'Loading listings...';
 
   try {
-    const response = await fetch(`${API_URL}`);
+    const response = await fetch(`${API_URL}/listings`);
     const data = await response.json();
+    console.log("Fetched listings:", data);
     listingsData = data.reverse(); // Latest first
     if (listingsData.length === 0) {
       emptyMessage.style.display = 'block';
