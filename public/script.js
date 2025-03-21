@@ -9,7 +9,7 @@ async function fetchListings() {
   listingsContainer.innerHTML = 'Loading listings...';
 
   try {
-    const response = await fetch(`${API_URL}/listings`);
+    const response = await fetch(`${API_URL}`);
     const data = await response.json();
     listingsData = data.reverse(); // Latest first
     if (listingsData.length === 0) {
