@@ -1,31 +1,36 @@
+require('dotenv').config();
 const express = require('express');
-const admin = require('firebase-admin');
-const multer = require('multer');
-const fs = require('fs');
 const cors = require('cors');
-const serviceAccount = require('./serviceAccountKey.json'); // Make sure this file exists
+const app = express();
+const admin = require("firebase-admin");
+const multer = require("multer");
+const fs = require("fs");
+
+app.use(cors());
+app.use(express.json());
+
+const PORT = process.env.PORT || 8080;
+
+// Firebase Admin Setup
+let serviceAccount;
+if (process.env.FIREBASE_CREDENTIALS) {
+  serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS);
+} else {
+  throw new Error("Missing Firebase credentials.");
+}
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  storageBucket: "wcab-55dcc.appspot.com", // ✅ Use the correct bucket name
+  storageBucket: "wcab-55dcc.firebasestorage.app",
 });
 
 const db = admin.firestore();
 const bucket = admin.storage().bucket();
-const app = express();
 
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Multer for image uploads
+const upload = multer({ storage: multer.memoryStorage() });
 
-// Multer setup for image upload
-const upload = multer({ dest: 'uploads/' });
-
-app.get('/', (req, res) => {
-  res.send('WCAB Backend is Running');
-});
-
-// ✅ UPLOAD a new listing with userEmail
+// POST /upload → Create a new listing
 app.post('/upload', upload.single('image'), async (req, res) => {
   try {
     const { title, price, description, contact, userEmail } = req.body;
@@ -36,46 +41,37 @@ app.post('/upload', upload.single('image'), async (req, res) => {
     }
 
     const imagePath = `images/${Date.now()}_${imageFile.originalname}`;
-    await bucket.upload(imageFile.path, { destination: imagePath });
+    const file = bucket.file(imagePath);
+
+    await file.save(imageFile.buffer, {
+      metadata: { contentType: imageFile.mimetype },
+    });
 
     const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(imagePath)}?alt=media`;
 
-    fs.unlinkSync(imageFile.path); // Delete local file
-
-    await db.collection('listings').add({
+    await db.collection("listings").add({
       title,
       price,
       description,
       contact,
-      userEmail, // ✅ Now stored
       imageUrl,
+      userEmail,
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    res.status(200).json({ success: true, message: "Listing uploaded" });
+    res.status(200).json({ success: true, message: "Listing added." });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// ✅ GET listings
-app.get('/listings', async (req, res) => {
-  try {
-    const snapshot = await db.collection('listings').orderBy('timestamp', 'desc').get();
-    const listings = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    res.status(200).json({ listings, page: 1, limit: 100 });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// ✅ DELETE a listing (only by owner)
+// POST /delete → Delete only if the user is owner
 app.post('/delete', async (req, res) => {
   try {
     const { id, userEmail } = req.body;
 
-    const listingRef = db.collection('listings').doc(id);
-    const doc = await listingRef.get();
+    const docRef = db.collection("listings").doc(id);
+    const doc = await docRef.get();
 
     if (!doc.exists) {
       return res.status(404).json({ error: "Listing not found" });
@@ -84,17 +80,31 @@ app.post('/delete', async (req, res) => {
     const listing = doc.data();
 
     if (listing.userEmail !== userEmail) {
-      return res.status(403).json({ error: "Unauthorized: You can only delete your own listing." });
+      return res.status(403).json({ error: "Unauthorized: not your listing" });
     }
 
-    await listingRef.delete();
+    await docRef.delete();
     res.status(200).json({ success: true, message: "Listing deleted" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-const PORT = process.env.PORT || 8080;
+// GET /listings
+app.get('/listings', async (req, res) => {
+  try {
+    const snapshot = await db.collection("listings").orderBy("timestamp", "desc").get();
+    const listings = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    res.status(200).json({ listings, page: 1, limit: 100 });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });

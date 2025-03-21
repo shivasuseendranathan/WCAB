@@ -1,4 +1,3 @@
-// --- Firebase Setup ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import {
   getAuth,
@@ -8,6 +7,7 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyCwS99NMY-d-nfR9z30Bgg1owaFOZM7MiE",
   authDomain: "wcab-55dcc.firebaseapp.com",
@@ -26,9 +26,9 @@ const API_URL = 'https://wcab.onrender.com';
 let listingsData = [];
 let currentPage = 1;
 const listingsPerPage = 100;
-let currentUser = null;
+let currentUserEmail = null;
 
-// --- Auth Functions ---
+// Sign In
 window.signIn = async function () {
   try {
     await signInWithPopup(auth, provider);
@@ -37,6 +37,7 @@ window.signIn = async function () {
   }
 };
 
+// Sign Out
 window.signOut = async function () {
   try {
     await signOut(auth);
@@ -45,21 +46,22 @@ window.signOut = async function () {
   }
 };
 
+// Auth State Watcher
 onAuthStateChanged(auth, user => {
   const loginBtn = document.getElementById('login-btn');
   const logoutBtn = document.getElementById('logout-btn');
   const userName = document.getElementById('user-name');
   const form = document.getElementById('listing-form');
 
-  currentUser = user;
-
   if (user) {
+    currentUserEmail = user.email;
     loginBtn.style.display = 'none';
     logoutBtn.style.display = 'inline-block';
     userName.style.display = 'inline-block';
     userName.textContent = `Hello, ${user.displayName}`;
     form.style.display = 'block';
   } else {
+    currentUserEmail = null;
     loginBtn.style.display = 'inline-block';
     logoutBtn.style.display = 'none';
     userName.style.display = 'none';
@@ -69,7 +71,6 @@ onAuthStateChanged(auth, user => {
   fetchListings();
 });
 
-// --- Listings Logic ---
 async function fetchListings() {
   const listingsContainer = document.getElementById('listings');
   const emptyMessage = document.getElementById('empty-message');
@@ -103,10 +104,7 @@ function showPage(page) {
     const card = document.createElement('div');
     card.className = 'listing-card';
 
-    let deleteBtn = '';
-    if (currentUser && listing.userEmail === currentUser.email) {
-      deleteBtn = `<button onclick="deleteListing('${listing.id}')">Delete</button>`;
-    }
+    const canDelete = currentUserEmail && listing.userEmail === currentUserEmail;
 
     card.innerHTML = `
       <img src="${listing.imageUrl}" alt="${listing.title}">
@@ -114,7 +112,7 @@ function showPage(page) {
       <p><strong>Price:</strong> ₹${listing.price}</p>
       <p><strong>Description:</strong> ${listing.description}</p>
       <p><strong>Contact:</strong> ${listing.contact}</p>
-      ${deleteBtn}
+      ${canDelete ? `<button onclick="deleteListing('${listing.id}')">Delete</button>` : ''}
     `;
 
     listingsContainer.appendChild(card);
@@ -140,11 +138,6 @@ window.nextPage = function () {
 };
 
 window.postListing = async function () {
-  if (!currentUser) {
-    alert("You must be logged in to post.");
-    return;
-  }
-
   const title = document.getElementById("title").value.trim();
   const price = document.getElementById("price").value.trim();
   const description = document.getElementById("description").value.trim();
@@ -163,7 +156,7 @@ window.postListing = async function () {
   formData.append("description", description);
   formData.append("contact", contact);
   formData.append("image", imageFile);
-  formData.append("userEmail", currentUser.email); // ✅ include user email
+  formData.append("userEmail", currentUserEmail || "");
 
   try {
     const response = await fetch(`${API_URL}/upload`, {
@@ -185,21 +178,13 @@ window.postListing = async function () {
 };
 
 window.deleteListing = async function (id) {
-  if (!currentUser) {
-    alert("You must be logged in to delete.");
-    return;
-  }
-
-  const confirmed = confirm("Are you sure you want to delete this listing?");
-  if (!confirmed) return;
-
   try {
     const response = await fetch(`${API_URL}/delete`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ id, userEmail: currentUser.email })
+      body: JSON.stringify({ id, userEmail: currentUserEmail })
     });
 
     const result = await response.json();
