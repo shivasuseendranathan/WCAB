@@ -1,171 +1,126 @@
-// 🚀 Backend API URL
-const API_URL = "https://wcab.onrender.com";
-
-
-// 🟢 Function to Fetch Listings
+const API_URL = "https://wcab.onrender.com"; // Update this if needed
+let listingsData = [];
 let currentPage = 1;
+const listingsPerPage = 100;
 
-async function fetchListings(page = 1) {
-    try {
-        const response = await fetch(`https://wcab.onrender.com/listings?page=${page}`);
-        const data = await response.json();
-        const listings = data.listings;
-        const listingsContainer = document.getElementById("listings");
+async function fetchListings() {
+  const listingsContainer = document.getElementById('listings');
+  const emptyMessage = document.getElementById('empty-message');
+  listingsContainer.innerHTML = 'Loading listings...';
 
-        listingsContainer.innerHTML = ""; // Clear previous listings
-
-        listings.forEach((listing) => {
-            const div = document.createElement("div");
-            div.classList.add("listing-card"); // ✅ Ensures each listing uses the correct styling
-            div.innerHTML = `
-                <h3>${listing.title}</h3>
-                <p>Price: ${listing.price}</p>
-                <p>${listing.description}</p>
-                <p>Contact: ${listing.contact}</p>
-                <img src="${listing.imageUrl || 'default-placeholder.jpg'}" alt="Listing Image">
-                <button class="delete-btn" data-id="${listing.id}">Delete</button>
-            `;
-            listingsContainer.appendChild(div);
-        });
-
-        // Update page number display
-        document.getElementById("page-number").innerText = `Page ${page}`;
-        currentPage = page;
-
-        // Enable or disable pagination buttons
-        document.getElementById("prev-page").disabled = page === 1;
-    } catch (error) {
-        console.error("Error loading listings:", error);
-    }
-}
-// Function to Post Listings
-async function postListing() {
-    const title = document.getElementById("title").value;
-    const price = document.getElementById("price").value;
-    const description = document.getElementById("description").value;
-    const contact = document.getElementById("contact").value;
-    const imageInput = document.getElementById("image"); // Image file input
-    const imageFile = imageInput.files[0];
-
-    if (!imageFile) {
-        alert("Please select an image.");
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("price", price);
-    formData.append("description", description);
-    formData.append("contact", contact);
-    formData.append("image", imageFile); // ✅ Correctly appending image file
-
-    try {
-        const response = await fetch("https://wcab.onrender.com/upload", {
-            method: "POST",
-            body: formData, // ✅ Sending FormData (not JSON)
-        });
-
-        const result = await response.json();
-        if (response.ok) {
-            alert("Listing added successfully!");
-            fetchListings(); // Refresh listings
-        } else {
-            alert("Error: " + result.error);
-        }
-    } catch (error) {
-        alert("Request failed: " + error.message);
-    }
-}
-
-
-// Handle Next and Previous Buttons
-document.getElementById("next-page").addEventListener("click", () => {
-    fetchListings(currentPage + 1);
-});
-
-document.getElementById("prev-page").addEventListener("click", () => {
-    if (currentPage > 1) {
-        fetchListings(currentPage - 1);
-    }
-});
-
-// Load first page on startup
-fetchListings();
-
-
-    // Attach event listener to delete buttons
-    document.querySelectorAll(".delete-btn").forEach(button => {
-        button.addEventListener("click", (event) => {
-            const listingId = event.target.dataset.id;
-            showPasswordPrompt(listingId);
-        });
-    });
-
-
-function showPasswordPrompt(listingId) {
-    document.getElementById("password-modal").style.display = "block";
-
-    // Confirm Delete Button Click
-    document.getElementById("confirm-delete").onclick = async () => {
-        const password = document.getElementById("delete-password").value;
-        if (password === "42069") {
-            deleteListing(listingId, password);
-        } else {
-            alert("Incorrect password! Try again.");
-        }
-    };
-
-    // Cancel Delete Button Click
-    document.getElementById("cancel-delete").onclick = () => {
-        document.getElementById("password-modal").style.display = "none";
-    };
-}
-
-async function deleteListing(listingId, password) {
-    try {
-        const response = await fetch(`https://wcab.onrender.com/delete/${listingId}`, {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ password }),
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-            alert("Listing deleted successfully!");
-            document.getElementById("password-modal").style.display = "none";
-            fetchListings(); // Refresh listings
-        } else {
-            alert("Error: " + result.error);
-        }
-    } catch (error) {
-        alert("Request failed: " + error.message);
-    }
-}
-
-// 🚀 Call the function when the page loads
-fetchListings();
-document.getElementById("listingForm").addEventListener("submit", async (e) => {
-    e.preventDefault();  // Stops the page from reloading
-
-    let formData = new FormData();
-    formData.append("title", document.getElementById("title").value);
-    formData.append("price", document.getElementById("price").value);
-    formData.append("description", document.getElementById("description").value);
-    formData.append("contact", document.getElementById("contact").value);
-    formData.append("image", document.getElementById("image").files[0]);
-
-    let response = await fetch(`${API_URL}/upload`, {
-        method: "POST",
-        body: formData,
-    });
-
-    let result = await response.json();
-    if (result.success) {
-        alert("Listing added successfully!");
-        fetchListings();  // Refresh listings
-        document.getElementById("listingForm").reset();  // Clear form
+  try {
+    const response = await fetch(`${API_URL}/listings`);
+    const data = await response.json();
+    listingsData = data.reverse(); // Latest first
+    if (listingsData.length === 0) {
+      emptyMessage.style.display = 'block';
     } else {
-        alert("Error: " + result.error);
+      emptyMessage.style.display = 'none';
     }
-});
+    showPage(currentPage);
+  } catch (error) {
+    listingsContainer.innerHTML = '<p style="text-align:center; color:red;">Error loading listings.</p>';
+  }
+}
+
+function showPage(page) {
+  const listingsContainer = document.getElementById('listings');
+  listingsContainer.innerHTML = '';
+  const start = (page - 1) * listingsPerPage;
+  const end = start + listingsPerPage;
+  const pageListings = listingsData.slice(start, end);
+
+  pageListings.forEach(listing => {
+    const card = document.createElement('div');
+    card.className = 'listing-card';
+
+    card.innerHTML = `
+      <img src="${listing.imageUrl}" alt="${listing.title}">
+      <h4>${listing.title}</h4>
+      <p><strong>Price:</strong> ₹${listing.price}</p>
+      <p><strong>Description:</strong> ${listing.description}</p>
+      <p><strong>Contact:</strong> ${listing.contact}</p>
+      <button onclick="deleteListing('${listing.id}')">Delete</button>
+    `;
+
+    listingsContainer.appendChild(card);
+  });
+
+  document.getElementById('prevBtn').disabled = (page === 1);
+  document.getElementById('nextBtn').disabled = (end >= listingsData.length);
+}
+
+function previousPage() {
+  if (currentPage > 1) {
+    currentPage--;
+    showPage(currentPage);
+  }
+}
+
+function nextPage() {
+  const maxPage = Math.ceil(listingsData.length / listingsPerPage);
+  if (currentPage < maxPage) {
+    currentPage++;
+    showPage(currentPage);
+  }
+}
+
+async function postListing() {
+  const title = document.getElementById("title").value.trim();
+  const price = document.getElementById("price").value.trim();
+  const description = document.getElementById("description").value.trim();
+  const contact = document.getElementById("contact").value.trim();
+  const imageInput = document.getElementById("image");
+  const imageFile = imageInput.files[0];
+
+  if (!title || !price || !description || !contact || !imageFile) {
+    alert("Please fill in all fields and select an image.");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("title", title);
+  formData.append("price", price);
+  formData.append("description", description);
+  formData.append("contact", contact);
+  formData.append("image", imageFile);
+
+  try {
+    const response = await fetch(`${API_URL}/upload`, {
+      method: "POST",
+      body: formData
+    });
+
+    const result = await response.json();
+    if (response.ok) {
+      showToast("🎉 Listing added successfully!");
+      document.getElementById("listing-form").reset();
+      fetchListings();
+    } else {
+      alert("Error: " + result.error);
+    }
+  } catch (error) {
+    alert("Upload failed: " + error.message);
+  }
+}
+
+function showToast(message) {
+  const toast = document.createElement("div");
+  toast.textContent = message;
+  toast.style.position = "fixed";
+  toast.style.bottom = "20px";
+  toast.style.left = "50%";
+  toast.style.transform = "translateX(-50%)";
+  toast.style.background = "#a90000";
+  toast.style.color = "#fff";
+  toast.style.padding = "12px 20px";
+  toast.style.borderRadius = "6px";
+  toast.style.boxShadow = "0 2px 8px rgba(0,0,0,0.2)";
+  toast.style.fontSize = "14px";
+  toast.style.zIndex = "1000";
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2500);
+}
+
+// Call fetchListings when the page loads
+window.onload = fetchListings;
