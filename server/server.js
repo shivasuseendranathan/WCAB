@@ -95,25 +95,24 @@ app.get('/listings', async (req, res) => {
     }
 });
 
-// 🟢 Route: Delete Listing
-app.delete('/delete/:id', async (req, res) => {
+app.post('/delete', async (req, res) => {
     try {
-        const { password } = req.body;
-        const listingId = req.params.id;
-
-        // ✅ Correct password
-        if (password !== "42069") {
-            return res.status(403).json({ error: "Incorrect password!" });
-        }
-
-        // ✅ Delete from Firestore
-        await db.collection("listings").doc(listingId).delete();
-        res.status(200).json({ success: true, message: "Listing deleted!" });
-
+      const { id, password } = req.body;
+  
+      // Simple password check
+      if (password !== '42069') {
+        return res.status(401).json({ error: 'Unauthorized. Incorrect password.' });
+      }
+  
+      // Delete from Firestore
+      await db.collection('listings').doc(id).delete();
+  
+      res.status(200).json({ success: true, message: 'Listing deleted.' });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error.message });
     }
-});
+  });
+  
 
 
 // Start Server
