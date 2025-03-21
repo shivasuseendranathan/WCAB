@@ -1,8 +1,72 @@
+// --- Firebase Setup ---
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+// ✅ Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyCwS99NMY-d-nfR9z30Bgg1owaFOZM7MiE",
+  authDomain: "wcab-55dcc.firebaseapp.com",
+  projectId: "wcab-55dcc",
+  storageBucket: "wcab-55dcc.firebasestorage.app",
+  messagingSenderId: "492891848804",
+  appId: "1:492891848804:web:fc2053ffa1ac52e7f4df71",
+  measurementId: "G-NXB3NKTDFX"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
 const API_URL = 'https://wcab.onrender.com';
 let listingsData = [];
 let currentPage = 1;
 const listingsPerPage = 100;
 
+// --- Login Functions ---
+window.signIn = async function () {
+  try {
+    await signInWithPopup(auth, provider);
+  } catch (error) {
+    alert("Login failed: " + error.message);
+  }
+};
+
+window.signOut = async function () {
+  try {
+    await signOut(auth);
+  } catch (error) {
+    alert("Logout failed: " + error.message);
+  }
+};
+
+// --- Auth State Handler ---
+onAuthStateChanged(auth, user => {
+  const loginBtn = document.getElementById('login-btn');
+  const logoutBtn = document.getElementById('logout-btn');
+  const userName = document.getElementById('user-name');
+  const form = document.getElementById('listing-form');
+
+  if (user) {
+    loginBtn.style.display = 'none';
+    logoutBtn.style.display = 'inline-block';
+    userName.style.display = 'inline-block';
+    userName.textContent = `Hello, ${user.displayName}`;
+    form.style.display = 'block';
+  } else {
+    loginBtn.style.display = 'inline-block';
+    logoutBtn.style.display = 'none';
+    userName.style.display = 'none';
+    form.style.display = 'none';
+  }
+});
+
+// --- Listings Logic ---
 async function fetchListings() {
   const listingsContainer = document.getElementById('listings');
   const emptyMessage = document.getElementById('empty-message');
@@ -11,7 +75,7 @@ async function fetchListings() {
   try {
     const response = await fetch(`${API_URL}/listings`);
     const data = await response.json();
-    listingsData = data.listings.reverse(); // Fix for backend structure
+    listingsData = data.listings.reverse();
 
     if (listingsData.length === 0) {
       emptyMessage.style.display = 'block';
@@ -52,22 +116,22 @@ function showPage(page) {
   document.getElementById('nextBtn').disabled = (end >= listingsData.length);
 }
 
-function previousPage() {
+window.previousPage = function () {
   if (currentPage > 1) {
     currentPage--;
     showPage(currentPage);
   }
-}
+};
 
-function nextPage() {
+window.nextPage = function () {
   const maxPage = Math.ceil(listingsData.length / listingsPerPage);
   if (currentPage < maxPage) {
     currentPage++;
     showPage(currentPage);
   }
-}
+};
 
-async function postListing() {
+window.postListing = async function () {
   const title = document.getElementById("title").value.trim();
   const price = document.getElementById("price").value.trim();
   const description = document.getElementById("description").value.trim();
@@ -104,9 +168,9 @@ async function postListing() {
   } catch (error) {
     alert("Upload failed: " + error.message);
   }
-}
+};
 
-async function deleteListing(id) {
+window.deleteListing = async function (id) {
   const password = prompt("Enter password to delete this listing:");
   if (password !== "42069") {
     alert("Incorrect password.");
@@ -132,7 +196,7 @@ async function deleteListing(id) {
   } catch (error) {
     alert("Deletion failed: " + error.message);
   }
-}
+};
 
 function showToast(message) {
   const toast = document.createElement("div");
@@ -152,4 +216,5 @@ function showToast(message) {
   setTimeout(() => toast.remove(), 2500);
 }
 
-window.onload = fetchListings;
+// Initial Fetch
+fetchListings();

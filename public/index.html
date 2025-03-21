@@ -4,21 +4,31 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>WCAB Hub – MICA Campus Marketplace</title>
-  
+
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600&family=Roboto&display=swap" rel="stylesheet">
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js"></script>
 
   <!-- CSS File -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- Heading -->
   <h1>WCAB Hub</h1>
   <h3>Buy & Sell within MICA Campus 📦📚🛒</h3>
 
+  <!-- Login Section -->
+  <div id="auth-section" class="center">
+    <button id="login-btn" onclick="signIn()">Sign in with Google</button>
+    <span id="user-name" style="display:none;"></span>
+    <button id="logout-btn" onclick="signOut()" style="display:none;">Logout</button>
+  </div>
+
   <!-- Upload Form -->
-  <form id="listing-form" enctype="multipart/form-data">
+  <form id="listing-form" enctype="multipart/form-data" style="display:none;">
     <input type="text" id="title" placeholder="Title" required>
     <input type="text" id="price" placeholder="Price (e.g. ₹500)" required>
     <textarea id="description" placeholder="Short description..." required></textarea>
@@ -39,7 +49,7 @@
     <button id="nextBtn" onclick="nextPage()">Next</button>
   </div>
 
-  <!-- Script -->
-  <script src="script.js"></script>
+  <!-- JS -->
+  <script src="script.js" type="module"></script>
 </body>
 </html>
