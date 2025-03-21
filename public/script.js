@@ -1,4 +1,4 @@
-const API_URL = "https://wcab.onrender.com"; // Update this if needed
+const API_URL = "https://wcab.onrender.com/listings"; // Update this if needed
 let listingsData = [];
 let currentPage = 1;
 const listingsPerPage = 100;
