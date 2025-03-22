@@ -25,6 +25,11 @@
     <button id="logout-btn" onclick="signOut()" style="display:none;">Logout</button>
   </div>
 
+  <!-- Search Bar -->
+  <div id="search-container" class="center">
+    <input type="text" id="search-input" placeholder="Search listings..." oninput="handleSearch()">
+  </div>
+
   <!-- Upload Form -->
   <form id="listing-form" enctype="multipart/form-data" style="display:none;">
     <input type="text" id="title" placeholder="Title" required>

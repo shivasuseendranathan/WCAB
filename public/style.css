@@ -150,3 +150,24 @@ form button:hover {
     color: #777;
     margin-top: 40px;
 }
+/* 🔍 Search Bar Styling */
+#search-container {
+    margin: 20px auto;
+    text-align: center;
+}
+
+#search-input {
+    width: 80%;
+    max-width: 500px;
+    padding: 10px 15px;
+    font-size: 16px;
+    border: 2px solid #aaa;
+    border-radius: 5px;
+    outline: none;
+    transition: 0.3s;
+}
+
+#search-input:focus {
+    border-color: #a90000;
+    box-shadow: 0 0 5px rgba(169, 0, 0, 0.5);
+}
