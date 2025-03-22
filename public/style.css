@@ -242,5 +242,90 @@ form button:hover {
     opacity: 1;
     transform: scale(1.05);
   }
+  /* 🌙 Dark Mode Toggle Button */
+#dark-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1001;
+  }
+  
+  /* Toggle Switch Style */
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+  }
+  
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    background-color: #ccc;
+    border-radius: 34px;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transition: 0.4s;
+  }
+  
+  .slider::before {
+    content: "";
+    position: absolute;
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background-color: white;
+    left: 3px;
+    bottom: 3px;
+    transition: 0.4s;
+  }
+  
+  input:checked + .slider {
+    background-color: #4caf50;
+  }
+  
+  input:checked + .slider::before {
+    transform: translateX(24px);
+  }
+  
+  /* 🌑 DARK MODE STYLES */
+  body.dark-mode {
+    background-color: #121212;
+    color: #f5f5f5;
+  }
+  
+  body.dark-mode input,
+  body.dark-mode textarea,
+  body.dark-mode button {
+    background-color: #222;
+    color: #eee;
+    border-color: #444;
+  }
+  
+  body.dark-mode .listing-card {
+    background-color: #1e1e1e;
+    color: #f2f2f2;
+    border-color: #333;
+  }
+  
+  body.dark-mode #edit-form,
+  body.dark-mode #listing-form {
+    background-color: #1a1a1a;
+    border-color: #333;
+  }
+  
+  body.dark-mode #visitor-counter {
+    background-color: #333;
+    color: #fff;
+  }
+  
   
   

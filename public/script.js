@@ -294,6 +294,23 @@ window.deleteListing = async function (id) {
     alert("Deletion failed: " + error.message);
   }
 };
+// 🌗 Dark Mode Toggle
+window.toggleDarkMode = function () {
+  const isDark = document.body.classList.toggle("dark-mode");
+  localStorage.setItem("darkMode", isDark ? "enabled" : "disabled");
+};
+
+// 💾 Load Saved Theme Preference
+(function () {
+  const savedTheme = localStorage.getItem("darkMode");
+  const themeSwitch = document.getElementById("theme-switch");
+
+  if (savedTheme === "enabled") {
+    document.body.classList.add("dark-mode");
+    if (themeSwitch) themeSwitch.checked = true;
+  }
+})();
+
 
 function showToast(message) {
   const toast = document.createElement("div");
