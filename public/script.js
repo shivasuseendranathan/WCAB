@@ -24,6 +24,7 @@ const provider = new GoogleAuthProvider();
 
 const API_URL = 'https://wcab.onrender.com';
 let listingsData = [];
+let filteredListings = [];
 let currentPage = 1;
 const listingsPerPage = 100;
 let currentUserEmail = null;
@@ -80,8 +81,9 @@ async function fetchListings() {
     const response = await fetch(`${API_URL}/listings`);
     const data = await response.json();
     listingsData = data.listings.reverse();
+    filteredListings = [...listingsData]; // Start with all listings
 
-    if (listingsData.length === 0) {
+    if (filteredListings.length === 0) {
       emptyMessage.style.display = 'block';
     } else {
       emptyMessage.style.display = 'none';
@@ -98,7 +100,7 @@ function showPage(page) {
   listingsContainer.innerHTML = '';
   const start = (page - 1) * listingsPerPage;
   const end = start + listingsPerPage;
-  const pageListings = listingsData.slice(start, end);
+  const pageListings = filteredListings.slice(start, end);
 
   pageListings.forEach(listing => {
     const card = document.createElement('div');
@@ -119,7 +121,7 @@ function showPage(page) {
   });
 
   document.getElementById('prevBtn').disabled = (page === 1);
-  document.getElementById('nextBtn').disabled = (end >= listingsData.length);
+  document.getElementById('nextBtn').disabled = (end >= filteredListings.length);
 }
 
 window.previousPage = function () {
@@ -175,6 +177,19 @@ window.postListing = async function () {
   } catch (error) {
     alert("Upload failed: " + error.message);
   }
+};
+
+window.handleSearch = function () {
+  const query = document.getElementById('search-input').value.toLowerCase();
+
+  filteredListings = listingsData.filter(listing =>
+    listing.title.toLowerCase().includes(query) ||
+    listing.description.toLowerCase().includes(query) ||
+    listing.contact.toLowerCase().includes(query)
+  );
+
+  currentPage = 1;
+  showPage(currentPage);
 };
 
 window.deleteListing = async function (id) {
