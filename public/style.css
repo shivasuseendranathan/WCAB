@@ -171,3 +171,53 @@ form button:hover {
     border-color: #a90000;
     box-shadow: 0 0 5px rgba(169, 0, 0, 0.5);
 }
+/* ✏️ Edit Form Styling */
+#edit-form {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    margin: 20px auto;
+    padding: 15px;
+    background: #f3f3f3;
+    border-radius: 5px;
+    border: 2px dashed #ccc;
+  }
+  
+  #edit-form input,
+  #edit-form textarea,
+  #edit-form button {
+    margin: 5px 0;
+    padding: 8px;
+  }
+  
+  #edit-form button {
+    background: #ffa500;
+    color: white;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+  }
+  
+  #edit-form button:hover {
+    background: #cc8400;
+  }
+  
+  /* 👤 My Listings Toggle */
+  #my-listings-toggle {
+    margin-top: 10px;
+  }
+  
+  #my-listings-toggle button {
+    background-color: #444;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+  }
+  
+  #my-listings-toggle button:hover {
+    background-color: #222;
+  }
+  

@@ -105,6 +105,47 @@ app.get('/listings', async (req, res) => {
   }
 });
 
+// POST /edit/:id - Edit Listing
+app.post('/edit/:id', upload.single('image'), async (req, res) => {
+  try {
+    const { title, price, description, contact, userEmail } = req.body;
+    const imageFile = req.file;
+    const listingId = req.params.id;
+
+    const docRef = db.collection("listings").doc(listingId);
+    const doc = await docRef.get();
+
+    if (!doc.exists) {
+      return res.status(404).json({ error: "Listing not found." });
+    }
+
+    const listing = doc.data();
+    if (listing.userEmail !== userEmail) {
+      return res.status(403).json({ error: "Unauthorized. Not your listing." });
+    }
+
+    const updates = { title, price, description, contact };
+
+    if (imageFile) {
+      const imagePath = `images/${Date.now()}_${imageFile.originalname}`;
+      const file = bucket.file(imagePath);
+
+      await file.save(imageFile.buffer, {
+        metadata: { contentType: imageFile.mimetype }
+      });
+
+      const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(imagePath)}?alt=media`;
+      updates.imageUrl = imageUrl;
+    }
+
+    await docRef.update(updates);
+    res.status(200).json({ success: true, message: "Listing updated!" });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });

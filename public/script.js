@@ -21,7 +21,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
-
+let showOnlyMine = false;
+let editingListingId = null;
 const API_URL = 'https://wcab.onrender.com';
 let listingsData = [];
 let filteredListings = [];
@@ -61,13 +62,15 @@ onAuthStateChanged(auth, user => {
     userName.style.display = 'inline-block';
     userName.textContent = `Hello, ${user.displayName}`;
     form.style.display = 'block';
+    document.getElementById("my-listings-toggle").style.display = 'block';
   } else {
     currentUserEmail = null;
     loginBtn.style.display = 'inline-block';
     logoutBtn.style.display = 'none';
     userName.style.display = 'none';
     form.style.display = 'none';
-  }
+    document.getElementById("my-listings-toggle").style.display = 'none';
+  }  
 
   fetchListings();
 });
@@ -114,7 +117,10 @@ function showPage(page) {
       <p><strong>Price:</strong> ₹${listing.price}</p>
       <p><strong>Description:</strong> ${listing.description}</p>
       <p><strong>Contact:</strong> ${listing.contact}</p>
-      ${canDelete ? `<button onclick="deleteListing('${listing.id}')">Delete</button>` : ''}
+      ${canDelete ? `
+        <button onclick="deleteListing('${listing.id}')">Delete</button>
+        <button onclick="openEditForm('${listing.id}')">Edit</button>
+      ` : ''}      
     `;
 
     listingsContainer.appendChild(card);
@@ -129,6 +135,13 @@ window.previousPage = function () {
     currentPage--;
     showPage(currentPage);
   }
+};
+
+window.toggleMyListings = function () {
+  showOnlyMine = !showOnlyMine;
+  const btn = document.querySelector('#my-listings-toggle button');
+  btn.textContent = showOnlyMine ? '🔁 Show All Listings' : '👤 Show My Listings';
+  handleSearch(); // trigger filter again
 };
 
 window.nextPage = function () {
@@ -182,14 +195,70 @@ window.postListing = async function () {
 window.handleSearch = function () {
   const query = document.getElementById('search-input').value.toLowerCase();
 
-  filteredListings = listingsData.filter(listing =>
-    listing.title.toLowerCase().includes(query) ||
-    listing.description.toLowerCase().includes(query) ||
-    listing.contact.toLowerCase().includes(query)
-  );
+  filteredListings = listingsData.filter(listing => {
+    const matchText = (
+      listing.title.toLowerCase().includes(query) ||
+      listing.description.toLowerCase().includes(query) ||
+      listing.contact.toLowerCase().includes(query)
+    );
+
+    const matchUser = !showOnlyMine || (currentUserEmail && listing.userEmail === currentUserEmail);
+    return matchText && matchUser;
+  });
 
   currentPage = 1;
   showPage(currentPage);
+};
+
+window.openEditForm = function (id) {
+  const listing = listingsData.find(l => l.id === id);
+  if (!listing) return;
+
+  editingListingId = id;
+
+  document.getElementById('edit-id').value = id;
+  document.getElementById('edit-title').value = listing.title;
+  document.getElementById('edit-price').value = listing.price;
+  document.getElementById('edit-description').value = listing.description;
+  document.getElementById('edit-contact').value = listing.contact;
+
+  document.getElementById('edit-form').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+window.submitEdit = async function () {
+  const id = document.getElementById("edit-id").value;
+  const title = document.getElementById("edit-title").value.trim();
+  const price = document.getElementById("edit-price").value.trim();
+  const description = document.getElementById("edit-description").value.trim();
+  const contact = document.getElementById("edit-contact").value.trim();
+  const imageFile = document.getElementById("edit-image").files[0];
+
+  const formData = new FormData();
+  formData.append("title", title);
+  formData.append("price", price);
+  formData.append("description", description);
+  formData.append("contact", contact);
+  formData.append("userEmail", currentUserEmail);
+  if (imageFile) formData.append("image", imageFile);
+
+  try {
+    const response = await fetch(`${API_URL}/edit/${id}`, {
+      method: "POST",
+      body: formData
+    });
+
+    const result = await response.json();
+    if (response.ok) {
+      showToast("✅ Listing updated!");
+      document.getElementById("edit-form").reset();
+      document.getElementById("edit-form").style.display = "none";
+      fetchListings();
+    } else {
+      alert("Error: " + result.error);
+    }
+  } catch (error) {
+    alert("Update failed: " + error.message);
+  }
 };
 
 window.deleteListing = async function (id) {

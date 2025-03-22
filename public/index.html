@@ -25,6 +25,11 @@
     <button id="logout-btn" onclick="signOut()" style="display:none;">Logout</button>
   </div>
 
+<!-- My Listings Toggle -->
+<div id="my-listings-toggle" class="center" style="display: none;">
+  <button onclick="toggleMyListings()">🔁 Show My Listings</button>
+</div>
+
   <!-- Search Bar -->
   <div id="search-container" class="center">
     <input type="text" id="search-input" placeholder="Search listings..." oninput="handleSearch()">
@@ -39,6 +44,18 @@
     <input type="file" id="image" accept="image/*" required>
     <button type="button" onclick="postListing()">Post Listing</button>
   </form>
+  
+  <!-- Edit Form -->
+<form id="edit-form" enctype="multipart/form-data" style="display:none;">
+  <h3>Edit Listing</h3>
+  <input type="hidden" id="edit-id">
+  <input type="text" id="edit-title" placeholder="Title" required>
+  <input type="text" id="edit-price" placeholder="Price (e.g. ₹500)" required>
+  <textarea id="edit-description" placeholder="Short description..." required></textarea>
+  <input type="text" id="edit-contact" placeholder="Your email/contact" required>
+  <input type="file" id="edit-image" accept="image/*">
+  <button type="button" onclick="submitEdit()">Update Listing</button>
+</form>
 
   <!-- Empty State Placeholder -->
   <div id="empty-message" style="display: none;">😴 No listings yet... Be the first to post something cool!</div>
