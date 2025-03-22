@@ -297,20 +297,34 @@ window.deleteListing = async function (id) {
 // 🌗 Dark Mode Toggle
 window.toggleDarkMode = function () {
   const isDark = document.body.classList.toggle("dark-mode");
-  localStorage.setItem("darkMode", isDark ? "enabled" : "disabled");
+  const themeLabel = document.getElementById("theme-label");
+  const themeSwitch = document.getElementById("theme-switch");
+
+  if (isDark) {
+    themeLabel.textContent = "Turn on the lights";
+    localStorage.setItem("darkMode", "enabled");
+    themeSwitch.checked = true;
+  } else {
+    themeLabel.textContent = "Turn off the lights";
+    localStorage.setItem("darkMode", "disabled");
+    themeSwitch.checked = false;
+  }
 };
 
 // 💾 Load Saved Theme Preference
 (function () {
   const savedTheme = localStorage.getItem("darkMode");
   const themeSwitch = document.getElementById("theme-switch");
+  const themeLabel = document.getElementById("theme-label");
 
   if (savedTheme === "enabled") {
     document.body.classList.add("dark-mode");
     if (themeSwitch) themeSwitch.checked = true;
+    if (themeLabel) themeLabel.textContent = "Turn on the lights";
+  } else {
+    if (themeLabel) themeLabel.textContent = "Turn off the lights";
   }
 })();
-
 
 function showToast(message) {
   const toast = document.createElement("div");
