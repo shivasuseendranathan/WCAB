@@ -221,3 +221,26 @@ form button:hover {
     background-color: #222;
   }
   
+  /* 👣 Visitor Counter Style */
+#visitor-counter {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #1e1e1e;
+    color: #f2f2f2;
+    padding: 10px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    font-family: 'Courier New', Courier, monospace;
+    z-index: 999;
+    opacity: 0.85;
+    transition: all 0.3s ease;
+  }
+  
+  #visitor-counter:hover {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  
+  

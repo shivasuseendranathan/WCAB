@@ -146,6 +146,25 @@ app.post('/edit/:id', upload.single('image'), async (req, res) => {
   }
 });
 
+// GET /visits - Visitor Counter
+app.get('/visits', async (req, res) => {
+  try {
+    const counterRef = db.collection("meta").doc("visits");
+    const doc = await counterRef.get();
+
+    let count = 1;
+    if (doc.exists) {
+      count = doc.data().count + 1;
+    }
+
+    await counterRef.set({ count });
+    res.status(200).json({ count });
+  } catch (error) {
+    console.error("Visitor counter error:", error);
+    res.status(500).json({ error: "Failed to count visits." });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });

@@ -73,7 +73,19 @@ onAuthStateChanged(auth, user => {
   }  
 
   fetchListings();
+  loadVisitCount();
 });
+
+async function loadVisitCount() {
+  try {
+    const response = await fetch(`${API_URL}/visits`);
+    const data = await response.json();
+    document.getElementById("visit-count").textContent = data.count;
+  } catch (err) {
+    console.error("Visitor counter failed:", err);
+    document.getElementById("visit-count").textContent = "N/A";
+  }
+}
 
 async function fetchListings() {
   const listingsContainer = document.getElementById('listings');
